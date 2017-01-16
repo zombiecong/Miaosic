@@ -21,6 +21,12 @@ router.get('/xiami', async (ctx, next) => {
     ctx.body = await Xiami.search(query.keyword);
 });
 
+router.get('/qq', async (ctx, next) => {
+    let query = ctx.request.query;
+    ctx.body = await QQ.search(query.keyword);
+});
+
+
 
 app.use(router.routes())
     .use(router.allowedMethods());
