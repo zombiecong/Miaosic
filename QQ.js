@@ -13,8 +13,7 @@ class QQ{
 
     }
 
-
-    origin_search(keyword,page=1,limit=10){
+    static origin_search(keyword,page=1,limit=10){
         var urlObj = {
             protocol: 'http:',
             slashes: true,
@@ -43,24 +42,24 @@ class QQ{
         });
     }
 
-    search(keyword,page=1,limit=10){
+    static search(keyword,page=1,limit=10){
 
         return new Promise((y,n)=>{
-            this.origin_search(keyword,page,limit).then(b=>{
+            QQ.origin_search(keyword,page,limit).then(b=>{
                 let song_list = b.data.song.list;
                 let songs = [];
 
-                for(let song in song_list){
+                for(let song of song_list){
                     let message = song.f.split('|');
                     let url = `http://ws.stream.qqmusic.qq.com/${message[0]}.m4a?fromtag=46`
                     songs.push(new Song(song.fsinger,song.fsong,message[5],url));
                 }
-
                 y(songs);
             });
         });
     }
 }
 
-let qq = new QQ();
-qq.search("爱").then(s=>console.log(s));
+module.exports = QQ;
+// let qq = new QQ();
+// qq.search("爱").then(s=>console.log(s));

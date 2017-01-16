@@ -13,7 +13,7 @@ class Xiami {
 
     }
 
-    origin_search(keyword, page = 1, limit = 10){
+    static origin_search(keyword, page = 1, limit = 10){
         var urlObj = {
             protocol: 'http:',
             slashes: true,
@@ -48,9 +48,9 @@ class Xiami {
         });
     }
 
-    search(keyword, page = 1, limit = 10){
+    static search(keyword, page = 1, limit = 10){
         return new Promise((y,n)=>{
-            this.origin_search(keyword,page,limit).then(b=>{
+            Xiami.origin_search(keyword,page,limit).then(b=>{
                 let song_list = b.data.songs;
                 // console.log(song_list)
 
@@ -70,6 +70,7 @@ class Xiami {
     }
 }
 
-
-let xiami = new Xiami();
-xiami.origin_search("小幸运").then(s => console.log(s.data.songs[0]));
+module.exports = Xiami;
+//
+// let xiami = new Xiami();
+// xiami.origin_search("小幸运").then(s => console.log(s.data.songs[0]));
