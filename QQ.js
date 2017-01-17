@@ -17,15 +17,16 @@ class QQ{
         var urlObj = {
             protocol: 'http:',
             slashes: true,
-            hostname: 's.music.qq.com',
+            hostname: 'c.y.qq.com',
             query: {
                 cr:1,
                 format:'json',
                 n:limit,
                 p:page,
-                w:keyword
+                w:keyword,
+                lossless:1,
             },
-            pathname: '/fcgi-bin/music_search_new_platform'
+            pathname: '/soso/fcgi-bin/search_cp'
         };
         var result = url.format(urlObj);
         // console.log(result);
@@ -42,7 +43,7 @@ class QQ{
         });
     }
 
-    static search(keyword,page=1,limit=10){
+    static search_old(keyword,page=1,limit=10){
 
         return new Promise((y,n)=>{
             QQ.origin_search(keyword,page,limit).then(b=>{
@@ -50,16 +51,90 @@ class QQ{
                 let songs = [];
 
                 for(let song of song_list){
-                    let message = song.f.split('|');
-                    let url = `http://ws.stream.qqmusic.qq.com/${message[0]}.m4a?fromtag=46`
-                    songs.push(new Song(song.fsinger,song.fsong,message[5],url));
+                    let url = `http://ws.stream.qqmusic.qq.com/${song.songid}.m4a?fromtag=46`
+                    songs.push(new Song(song.singer[0].name,song.songname,song.albumname,url));
                 }
                 y(songs);
             });
         });
     }
+
+    static search(keyword,page=1,limit=10){
+
+        return new Promise((y,n)=>{
+            QQ.origin_search(keyword,page,limit).then(b=>{
+                let song_list = b.data.song.list;
+                let songs = [];
+
+                geneKey().then(r=>{
+                    let [key,guid] = r;
+
+                    for(let song of song_list){
+                        let url = downloadUrl(song.songmid,"M800","mp3",key,guid);
+                        songs.push(new Song(song.singer[0].name,song.songname,song.albumname,url));
+                    }
+                    y(songs);
+                });
+
+            });
+        });
+    }
+}
+
+function geneKey() {
+    let max = 2147483647;
+    let min = 0;
+    let guid = parseInt(Math.random() * (max - min)) + min;
+
+    var urlObj = {
+        protocol: 'http:',
+        slashes: true,
+        hostname: 'c.y.qq.com',
+        query: {
+            guid:guid,
+            format:'json',
+            json:3
+        },
+        pathname: '/base/fcgi-bin/fcg_musicexpress.fcg'
+    };
+    var result = url.format(urlObj);
+
+    return new Promise((y,n)=>{
+        request.get({url:result}, function (e, r, body) {
+            if(e){
+                n(e);
+            }else{
+                // console.log(body);
+                let json_result = JSON.parse(body);
+                let key = json_result.key;
+
+
+                y([key,guid]);
+
+            }
+        })
+
+    });
+}
+
+function downloadUrl(mid,level,extension,key,guid) {
+    //
+    // let types= {
+    //     'size_320mp3': [320, 'M800', 'mp3'],
+    //     'size_128mp3': [128, 'M500', 'mp3'],
+    //     'size_96aac': [96, 'C400', 'm4a'],
+    //     'size_48aac': [48, 'C200', 'm4a'],
+    // };
+    //
+    // for(let i in types){
+    //     let url = `http://dl.stream.qqmusic.qq.com/${types[i][1]}${mid}.${types[i][2]}?vkey=${key}&guid=${guid}&fromtag=30`;
+    // }
+
+    let url = `http://dl.stream.qqmusic.qq.com/${level}${mid}.${extension}?vkey=${key}&guid=${guid}&fromtag=30`;
+    return  url;
 }
 
 module.exports = QQ;
-// let qq = new QQ();
-// qq.search("爱").then(s=>console.log(s));
+
+// QQ.origin_search("爱").then(s=>console.log(s.data.song.list));
+// QQ.search("爱").then(s=>console.log(s));
