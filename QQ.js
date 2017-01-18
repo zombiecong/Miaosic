@@ -135,10 +135,11 @@ function downloadUrl(mid,level,extension,key,guid) {
 }
 
 function picUrl(aid) {
-    return `https://y.gtimg.cn/music/photo_new/T002R100x100M000${aid}.jpg?max_age=2592000`;
+    let size = 90;
+    return `https://y.gtimg.cn/music/photo_new/T002R${size}x${size}M000${aid}.jpg?max_age=2592000`;
 }
 
 module.exports = QQ;
 
 // QQ.origin_search("爱").then(s=>console.log(s.data.song.list));
-// QQ.search("他不爱我").then(s=>console.log(s));
+QQ.search("他不爱我").then(s=>console.log(s));
