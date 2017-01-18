@@ -60,7 +60,8 @@ class Xiami {
                     songs.push(new Song(song.artist_name,
                         song.song_name,
                         song.album_name,
-                        song.listen_file)
+                        song.listen_file,
+                        song.album_logo)
                     );
                 }
 
@@ -73,4 +74,5 @@ class Xiami {
 module.exports = Xiami;
 //
 // let xiami = new Xiami();
-// xiami.origin_search("小幸运").then(s => console.log(s.data.songs[0]));
+// Xiami.origin_search("小幸运").then(s => console.log(s.data.songs[0]));
+// Xiami.search("他不爱我").then(s=>console.log(s));
