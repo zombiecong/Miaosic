@@ -7,7 +7,8 @@ const Song = require('./Song');
 
 const request = require('request');
 
-
+const Encoder = require('node-html-encoder').Encoder;
+const encoder = new Encoder('entity');
 class QQ{
     constructor(){
 
@@ -51,8 +52,9 @@ class QQ{
                 let songs = [];
 
                 for(let song of song_list){
-                    let url = `http://ws.stream.qqmusic.qq.com/${song.songid}.m4a?fromtag=46`
-                    songs.push(new Song(song.singer[0].name,song.songname,song.albumname,url));
+                    let url = `http://ws.stream.qqmusic.qq.com/${song.songid}.m4a?fromtag=46`;
+                    let singer = encoder.htmlDecode(song.singer[0].name);
+                    songs.push(new Song(singer,song.songname,song.albumname,url));
                 }
                 y(songs);
             });
@@ -71,7 +73,8 @@ class QQ{
 
                     for(let song of song_list){
                         let url = downloadUrl(song.songmid,"M800","mp3",key,guid);
-                        songs.push(new Song(song.singer[0].name,song.songname,song.albumname,url,picUrl(song.albummid)));
+                        let singer = encoder.htmlDecode(song.singer[0].name);
+                        songs.push(new Song(singer,song.songname,song.albumname,url,picUrl(song.albummid)));
                     }
                     y(songs);
                 });
@@ -142,4 +145,4 @@ function picUrl(aid) {
 module.exports = QQ;
 
 // QQ.origin_search("爱").then(s=>console.log(s.data.song.list));
-QQ.search("他不爱我").then(s=>console.log(s));
+QQ.search("LUV").then(s=>console.log(s));
