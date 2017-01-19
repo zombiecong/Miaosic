@@ -17,7 +17,7 @@ class Xiami {
         var urlObj = {
             protocol: 'http:',
             slashes: true,
-            hostname: 'api.xiami.com/web',
+            hostname: 'api.xiami.com',
             query: {
                 'v': '2.0',
                 'app_key': '1',
@@ -25,7 +25,8 @@ class Xiami {
                 'page': page,
                 'limit': limit,
                 'r': 'search/songs',
-            }
+            },
+            pathname: '/web'
         };
 
         var result = url.format(urlObj);
@@ -41,6 +42,7 @@ class Xiami {
                 if (e) {
                     n(e);
                 } else {
+                    // console.log(body);
                     y(JSON.parse(body));
                 }
             })
@@ -57,22 +59,90 @@ class Xiami {
                 let songs = [];
 
                 for(let song of song_list){
-                    songs.push(new Song(song.artist_name,
-                        song.song_name,
-                        song.album_name,
-                        song.listen_file,
-                        song.album_logo)
-                    );
+                    songs.push(downloadUrl(song.song_id));
+
+                    // songs.push(new Song(song.artist_name,
+                    //     song.song_name,
+                    //     song.album_name,
+                    //     song.listen_file,
+                    //     song.album_logo)
+                    // );
                 }
 
-                y(songs);
+                Promise.all(songs).then(results=>{
+                    let new_songs = [];
+                    for(let result of results){
+                        let [singer,url,song_name,album_logo,album_name] = result;
+                        new_songs.push(new Song(singer,
+                            song_name,
+                            album_name,
+                            url,
+                            album_logo));
+                    }
+                    y(new_songs);
+                });
+                // y(songs);
             });
         });
     }
 }
 
+function downloadUrl(id) {
+    var urlObj = {
+        protocol: 'http:',
+        slashes: true,
+        hostname: 'www.xiami.com',
+        pathname:`/song/playlist/id/${id}/object_name/default/object_id/0/cat/json`
+    };
+
+    var result = url.format(urlObj);
+    // console.log(result);
+
+    return new Promise((y, n) => {
+
+        request.get({url: result}, function (e, r, body) {
+            if (e) {
+                n(e);
+            } else {
+                let data = JSON.parse(body);
+                let singer;
+                let url;
+
+
+                let song_name = data.data.trackList[0].name;
+                let album_logo = data.data.trackList[0].pic;
+                let album_name = data.data.trackList[0].album_name;
+
+                let artist_name = data.data.trackList[0].artist_name;
+                let artist_name2 = data.data.trackList[0].singersSource[0].artistName;
+                if(artist_name != artist_name2){
+                    singer = `${artist_name}(${artist_name2})`;
+                }else{
+                    singer = artist_name;
+                }
+
+                let url_list = data.data.trackList[0].allAudios;
+
+                for (let song_url of url_list){
+                    if (song_url.audioQualityEnum == 'HIGH' && song_url.format == "mp3"){
+                        url = song_url.filePath;
+                        break;
+                    }
+                }
+
+                // console.log(singer,url);
+                y([singer,url,song_name,album_logo,album_name]);
+            }
+        })
+
+    });
+}
+
 module.exports = Xiami;
 //
 // let xiami = new Xiami();
-// Xiami.origin_search("小幸运").then(s => console.log(s.data.songs[0]));
+// Xiami.origin_search("后来的我们").then(s => console.dir(s.data.songs[0]));
 // Xiami.search("他不爱我").then(s=>console.log(s));
+//
+// let id = '1774490672';
+// downloadUrl(id);

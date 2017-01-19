@@ -145,4 +145,4 @@ function picUrl(aid) {
 module.exports = QQ;
 
 // QQ.origin_search("爱").then(s=>console.log(s.data.song.list));
-QQ.search("LUV").then(s=>console.log(s));
+// QQ.search("LUV").then(s=>console.log(s));
