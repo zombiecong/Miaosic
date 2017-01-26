@@ -144,7 +144,7 @@ function downloadUrl(id) {
 module.exports = Xiami;
 //
 // let xiami = new Xiami();
-Xiami.origin_search("小幸运").then(s => console.dir(s.data.songs[5]));
+// Xiami.origin_search("小幸运").then(s => console.dir(s.data.songs[5]));
 // Xiami.search("小幸运",1,4).then(s=>console.log(s));
 //
 // let id = '1774490672';
