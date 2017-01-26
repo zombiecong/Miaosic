@@ -108,13 +108,16 @@ function downloadUrl(id) {
                 let singer;
                 let url;
 
-
+                //todo(cc): check track list
                 let song_name = data.data.trackList[0].name;
                 let album_logo = data.data.trackList[0].pic;
                 let album_name = data.data.trackList[0].album_name;
 
                 let artist_name = data.data.trackList[0].artist_name;
-                let artist_name2 = data.data.trackList[0].singersSource[0].artistName;
+                let artist_name2;
+                if (data.data.trackList[0].singersSource[0]){
+                    artist_name2 = data.data.trackList[0].singersSource[0].artistName;
+                }
                 if(artist_name != artist_name2){
                     singer = `${artist_name}(${artist_name2})`;
                 }else{
@@ -141,8 +144,10 @@ function downloadUrl(id) {
 module.exports = Xiami;
 //
 // let xiami = new Xiami();
-// Xiami.origin_search("后来的我们").then(s => console.dir(s.data.songs[0]));
-// Xiami.search("他不爱我").then(s=>console.log(s));
+Xiami.origin_search("小幸运").then(s => console.dir(s.data.songs[5]));
+// Xiami.search("小幸运",1,4).then(s=>console.log(s));
 //
 // let id = '1774490672';
-// downloadUrl(id);
+// downloadUrl(id).then(e=>{
+//     console.log(e);
+// })
